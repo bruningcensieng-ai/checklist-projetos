@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist — Projeto Arquitetônico</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:    #141412;
+    --bg2:   #1e1e1b;
+    --bg3:   #252521;
+    --text:  #e8e5de;
+    --text2: #8a887f;
+    --border:  rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --green: #1D9E75;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font: 'DM Sans', system-ui, sans-serif;
+  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem 3rem; }
+  .container { max-width: 760px; margin: 0 auto; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); text-decoration: none; margin-bottom: 1.5rem; transition: color .15s; }
+  .back-link:hover { color: var(--text); }
+
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 { font-size: 20px; font-weight: 500; color: var(--text); }
+  .page-header p  { font-size: 13px; color: var(--text2); margin-top: 4px; }
+  .prog-bg   { background: var(--bg3); border-radius: 99px; height: 5px; margin: 14px 0 5px; }
+  .prog-fill { height: 5px; border-radius: 99px; background: var(--green); transition: width .35s; }
+  .prog-lbl  { font-size: 11px; color: var(--text2); text-align: right; }
+
+  .section { margin-bottom: 8px; border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .section-header { display: flex; align-items: center; gap: 8px; padding: 9px 13px; cursor: pointer; background: var(--bg2); user-select: none; transition: background .12s; }
+  .section-header:hover { background: var(--bg3); }
+
+  .section-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+  .badge-doc  { background:#0c2240; color:#6aaee8; }
+  .badge-arq  { background:#1a1a38; color:#9b97f0; }
+  .badge-ante { background:#2e2010; color:#d4914a; }
+  .badge-selo { background:#2e2010; color:#d4914a; }
+  .badge-quad { background:#0d2e0f; color:#6ec97a; }
+  .badge-imp  { background:#1a1a38; color:#9b97f0; }
+  .badge-pb   { background:#0d3028; color:#5ecfa6; }
+  .badge-cob  { background:#2e1228; color:#d47ab0; }
+  .badge-cor  { background:#2e1a0d; color:#d4874a; }
+  .badge-fach { background:#252521; color:#a09e96; }
+
+  .section-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .sec-progress  { font-size: 11px; color: var(--text2); margin-left: auto; margin-right: 6px; }
+  .chevron { font-size: 10px; color: var(--text2); transition: transform .2s; display: inline-block; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .section-items { display: none; }
+  .section-items.open { display: block; }
+
+  .item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 13px; border-top: 0.5px solid var(--border); cursor: pointer; transition: background .1s; }
+  .item:hover { background: var(--bg3); }
+  .item.checked { opacity: .45; }
+
+  .checkbox { width: 15px; height: 15px; min-width: 15px; border: 1.5px solid var(--border2); border-radius: 3px; display: flex; align-items: center; justify-content: center; margin-top: 2px; transition: all .15s; flex-shrink: 0; }
+  .item.checked .checkbox { background: var(--green); border-color: var(--green); }
+  .checkmark { display: none; color: #fff; font-size: 9px; font-weight: 700; }
+  .item.checked .checkmark { display: block; }
+
+  .item-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .item.checked .item-text { text-decoration: line-through; color: var(--text2); }
+
+  .tag-atencao { display: inline-block; font-size: 10px; background: #2e0d0d; color: #e07070; border-radius: 99px; padding: 1px 7px; margin-left: 6px; font-weight: 500; vertical-align: middle; white-space: nowrap; }
+
+  .footer-row { display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem; flex-wrap: wrap; gap: 8px; }
+  .btn { font-size: 12px; color: var(--text2); cursor: pointer; border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 6px 14px; background: none; font-family: var(--font); transition: background .15s; }
+  .btn:hover { background: var(--bg3); color: var(--text); }
+
+  @media print {
+    .footer-row, .back-link { display: none; }
+    .section-items { display: block !important; }
+    .section-header { background: none; }
+    body { background: #fff; color: #000; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao início</a>
+
+  <div class="page-header">
+    <h1>Checklist pré-envio — projeto arquitetônico</h1>
+    <p>Prefeitura de Rodeio · Marque cada item antes de protocolar</p>
+    <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-lbl" id="prog-label">0 de 0 itens concluídos</div>
+  </div>
+
+  <div id="sections"></div>
+
+  <div class="footer-row">
+    <button class="btn" onclick="resetAll()">↺ Reiniciar checklist</button>
+    <button class="btn" onclick="window.print()">⎙ Imprimir</button>
+  </div>
+</div>
+
+<script>
+const data = [
+  {
+    id:"doc", label:"1. Documentação", badge:"badge-doc",
+    items:[
+      {t:"Elaborar autorização/procuração em nome do proprietário para o engenheiro responsável"},
+      {t:"Buscar assinatura do proprietário na autorização/procuração"},
+      {t:"Coletar documento de identificação do proprietário (RG ou CNH)"},
+      {t:"Requerimento padrão assinado pelo proprietário"},
+      {t:"Declaração de Anuência assinada pelo proprietário e responsável técnico (com data atual e inscrição imobiliária/INCRA; todos os proprietários devem assinar)"},
+      {t:"RRT de projeto e RRT de execução (Arquitetônico, Estrutural, Hidrossanitário e Elétrico)"},
+      {t:"Consulta Prévia de Viabilidade preenchida pelo órgão municipal (com validade vigente)"},
+      {t:"Certidão de Inteiro Teor atualizada (máximo 90 dias)"},
+      {t:"ART do projeto arquitetônico", flag:true},
+      {t:"Formulário descritivo da Defesa Civil (específico Presidente Getúlio)", flag:true},
+    ]
+  },
+  {
+    id:"ante", label:"2. Anteprojeto", badge:"badge-ante",
+    items:[
+      {t:"Planta baixa simplificada com cotas"},
+      {t:"Decorações reduzidas (aguardar aprovação do cliente antes de detalhar)"},
+      {t:"Aprovação do cliente registrada antes de avançar para projeto completo"},
+    ]
+  },
+  {
+    id:"selo", label:"3. Selo (canto inferior direito)", badge:"badge-selo",
+    items:[
+      {t:"Nome e CPF do proprietário"},
+      {t:"Nome, CPF e registro do profissional responsável"},
+      {t:"Finalidade, tipologia e material da construção"},
+      {t:"Endereço completo"},
+      {t:"Numeração de pranchas, tipo do projeto e descrição dos itens apresentados"},
+    ]
+  },
+  {
+    id:"quad", label:"4. Quadro resumo (na prancha de implantação)", badge:"badge-quad",
+    items:[
+      {t:"Área do terreno"},
+      {t:"Zoneamento conforme Viabilidade Aprovada"},
+      {t:"Índices urbanísticos com cálculos: coeficiente de aproveitamento, taxa de ocupação, permeabilidade e nº de pavimentos"},
+      {t:"Inscrição imobiliária / INCRA"},
+      {t:"Número e comarca da Certidão de Inteiro Teor"},
+    ]
+  },
+  {
+    id:"imp", label:"5. Planta de implantação / situação", badge:"badge-imp",
+    items:[
+      {t:"Orientação do Norte"},
+      {t:"Nome e gabarito da via pública"},
+      {t:"Lado par e lado ímpar da via"},
+      {t:"Local de entrada de água e energia"},
+      {t:"Piso podotátil e acesso de veículos cotados (detalhe se necessário)"},
+      {t:"Cotas de nível: via (= 0,0), passeio, terreno e edificações"},
+      {t:"Dimensões do lote, confrontantes e distância à esquina mais próxima (conforme CIT)"},
+      {t:"Áreas de APP nomeadas com dimensões; lagoas, represas, áreas de inundação (se houver)"},
+      {t:"Faixas de domínio e áreas não edificantes junto a rodovias estaduais/federais (DNIT/SIE)"},
+      {t:"Faixa sanitária: tubulação, diâmetro e área não edificante com dimensões"},
+      {t:"Afastamentos e recuos da área a construir conforme lei"},
+      {t:"Todas as edificações existentes no lote com dimensões externas, afastamentos e alvarás"},
+      {t:"Localização do tanque séptico e filtro anaeróbio com dimensões, afastamentos, direção do fluxo e cálculo conforme NBR 17076/2024", flag:true},
+      {t:"Imagem de satélite (Google Earth/Maps) com demarcação do terreno", flag:true},
+      {t:"Cota de nível da calçada com inclinação transversal (<2%)"},
+      {t:"Detalhamento do passeio e acesso de veículos"},
+      {t:"Detalhamento da lixeira / abrigo de lixo"},
+      {t:"Entradas de energia, água e correspondência indicadas"},
+    ]
+  },
+  {
+    id:"pb", label:"6. Planta baixa (cada pavimento)", badge:"badge-pb",
+    items:[
+      {t:"Área total de cada pavimento"},
+      {t:"Nome, finalidade, dimensões e área de todos os ambientes (internos e externos)"},
+      {t:"Material de piso indicado em cada ambiente"},
+      {t:"Dimensões das esquadrias (largura, altura e peitoril) e tabela de esquadrias"},
+      {t:"Portas e janelas alinhadas ou centralizadas nas paredes conforme projeto"},
+      {t:"Dimensões de portas e janelas atendem às exigências de ventilação e iluminação (plano diretor/código de obras)", flag:true},
+      {t:"Paredes cegas devidamente indicadas com largura e altura"},
+      {t:"Pontos hidrossanitários indicados"},
+      {t:"Traços dos cortes longitudinais e transversais"},
+      {t:"Indicação dos sentidos das fachadas"},
+      {t:"Dimensionamento de escadas (cotas de degraus e patamares), quando houver"},
+      {t:"Cotas internas e externas, espessura de paredes"},
+      {t:"Abrigo de gás localizado e detalhado (dimensões, afastamentos e ventilação)"},
+      {t:"Revestimento impermeável em áreas molhadas indicado nas paredes"},
+    ]
+  },
+  {
+    id:"cob", label:"7. Planta de cobertura", badge:"badge-cob",
+    items:[
+      {t:"Inclinação do telhado e tipo de telha"},
+      {t:"Calhas, descida e destinação das águas pluviais"},
+      {t:"Projeção da construção"},
+      {t:"Projeção da caixa d'água e sua capacidade em litros"},
+      {t:"Cotas gerais da cobertura e de beiral"},
+    ]
+  },
+  {
+    id:"cor", label:"8. Cortes (mínimo dois)", badge:"badge-cor",
+    items:[
+      {t:"Corte obrigatório passando pela escada (quando houver)"},
+      {t:"Pé direito interno de cada ambiente"},
+      {t:"Altura total da edificação (do piso ao ponto mais alto)"},
+      {t:"Cota de nível em cada ambiente"},
+      {t:"Altura de portas, janelas e peitoris"},
+      {t:"Inclinação do telhado, tipo de telha e forro (quando houver)"},
+      {t:"Identificação dos ambientes"},
+      {t:"Altura de escadas (quando houver)"},
+      {t:"Cotas verticais e de beirais"},
+      {t:"Níveis internos e externos"},
+    ]
+  },
+  {
+    id:"fach", label:"9. Fachadas (mínimo duas)", badge:"badge-fach",
+    items:[
+      {t:"Vista frontal obrigatória"},
+      {t:"Segunda fachada incluída"},
+      {t:"Para uso comercial/público: verificar conformidade com NBR 9050/2020", flag:true},
+    ]
+  },
+  {
+    id:"proto", label:"10. Protocolo — antes de enviar", badge:"badge-arq",
+    items:[
+      {t:"Verificar assinaturas de todos os documentos (especialmente ART, Anuência e Requerimento)", flag:true},
+      {t:"Arquivo de arquitetônico nomeado corretamente: PRJ_ARQ_CLIENTE_nREV (ex: PRJ_ARQ_SILVA_R01.pdf)"},
+      {t:"Implantação da edificação anexada em formato .dwg", flag:true},
+      {t:"Todos os arquivos PDF legíveis e sem páginas faltando"},
+      {t:"Numeração de pranchas conforme declarado no selo"},
+    ]
+  },
+];
+
+let state = {};
+try { state = JSON.parse(localStorage.getItem('ck_arq') || '{}'); } catch(e) {}
+function save() { try { localStorage.setItem('ck_arq', JSON.stringify(state)); } catch(e){} }
+
+function countAll() {
+  let total=0, done=0;
+  data.forEach(s=>s.items.forEach(it=>{total++;if(state[s.id+it.t])done++;}));
+  return {total,done};
+}
+function secProgress(sec) {
+  let done=0;
+  sec.items.forEach(it=>{if(state[sec.id+it.t])done++;});
+  return done+'/'+sec.items.length;
+}
+function updateProgress() {
+  const {total,done}=countAll();
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=done+' de '+total+' itens concluídos ('+pct+'%)';
+}
+function render() {
+  const cont=document.getElementById('sections');
+  cont.innerHTML='';
+  data.forEach(sec=>{
+    const div=document.createElement('div');
+    div.className='section';
+    div.innerHTML=`
+      <div class="section-header" onclick="toggle('${sec.id}')">
+        <span class="section-badge ${sec.badge}">${sec.label.split('. ')[0]}</span>
+        <span class="section-title">${sec.label.split('. ').slice(1).join('. ')}</span>
+        <span class="sec-progress" id="sp-${sec.id}">${secProgress(sec)}</span>
+        <span class="chevron open" id="chev-${sec.id}">▼</span>
+      </div>
+      <div class="section-items open" id="si-${sec.id}">
+        ${sec.items.map(it=>`
+          <div class="item${state[sec.id+it.t]?' checked':''}" onclick="toggle2('${sec.id}','${it.t.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">
+            <div class="checkbox"><span class="checkmark">✓</span></div>
+            <span class="item-text">${it.t}${it.flag?'<span class="tag-atencao">atenção</span>':''}</span>
+          </div>`).join('')}
+      </div>`;
+    cont.appendChild(div);
+  });
+  updateProgress();
+}
+function toggle(id) {
+  document.getElementById('si-'+id).classList.toggle('open');
+  document.getElementById('chev-'+id).classList.toggle('open');
+}
+function toggle2(secId, text) {
+  state[secId+text]=!state[secId+text];
+  save(); render();
+}
+function resetAll() {
+  if(confirm('Reiniciar todos os itens?')) { state={}; save(); render(); }
+}
+render();
+</script>
+</body>
+</html>

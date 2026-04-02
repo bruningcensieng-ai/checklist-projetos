@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist — Projetos Complementares</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:       #141412;
+    --bg2:      #1e1e1b;
+    --bg3:      #252521;
+    --text:     #e8e5de;
+    --text2:    #8a887f;
+    --border:   rgba(255,255,255,0.08);
+    --border2:  rgba(255,255,255,0.15);
+    --green:    #1D9E75;
+    --radius:   10px;
+    --font:     'DM Sans', system-ui, sans-serif;
+  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem 3rem; }
+  .container { max-width: 780px; margin: 0 auto; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); text-decoration: none; margin-bottom: 1.5rem; transition: color .15s; }
+  .back-link:hover { color: var(--text); }
+
+  .page-header { margin-bottom: 1.75rem; }
+  .page-header h1 { font-size: 20px; font-weight: 500; color: var(--text); }
+  .page-header p  { font-size: 13px; color: var(--text2); margin-top: 3px; }
+  .prog-wrap { margin-top: 14px; }
+  .prog-bg   { background: var(--bg3); border-radius: 99px; height: 5px; }
+  .prog-fill { height: 5px; border-radius: 99px; background: var(--green); transition: width .35s; }
+  .prog-label { font-size: 11px; color: var(--text2); text-align: right; margin-top: 5px; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .tab { padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text2); font-family: var(--font); transition: all .15s; }
+  .tab.active { background: var(--bg3); color: var(--text); border-color: rgba(255,255,255,0.3); }
+  .tab:hover:not(.active) { border-color: rgba(255,255,255,0.22); color: var(--text); }
+
+  .section { margin-bottom: 8px; border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .section-header { display: flex; align-items: center; gap: 8px; padding: 9px 13px; cursor: pointer; background: var(--bg2); user-select: none; transition: background .12s; }
+  .section-header:hover { background: var(--bg3); }
+
+  .sec-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+  .b-hidro  { background:#0d3d2e; color:#5ecfa6; }
+  .b-eletro { background:#1a2b4a; color:#6aaee8; }
+  .b-estru  { background:#2e1f10; color:#d4914a; }
+  .b-geral  { background:#2a2218; color:#c9a86b; }
+
+  .sec-title  { font-size: 13px; font-weight: 500; color: var(--text); }
+  .sec-prog   { font-size: 11px; color: var(--text2); margin-left: auto; margin-right: 6px; }
+  .chevron    { font-size: 10px; color: var(--text2); transition: transform .2s; display: inline-block; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .section-items { display: none; }
+  .section-items.open { display: block; }
+
+  .item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 13px; border-top: 0.5px solid var(--border); cursor: pointer; transition: background .1s; }
+  .item:hover { background: var(--bg3); }
+  .item.checked { opacity: .45; }
+
+  .cb { width: 15px; height: 15px; min-width: 15px; border: 1.5px solid var(--border2); border-radius: 3px; display: flex; align-items: center; justify-content: center; margin-top: 2px; transition: all .15s; flex-shrink: 0; }
+  .item.checked .cb { background: var(--green); border-color: var(--green); }
+  .ck { display: none; color: #fff; font-size: 9px; font-weight: 700; }
+  .item.checked .ck { display: block; }
+
+  .item-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .item.checked .item-text { text-decoration: line-through; color: var(--text2); }
+
+  .tag { display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 7px; border-radius: 99px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
+  .t-novo    { background:#0d2e0f; color:#6ec97a; }
+  .t-atualizar { background:#2e2010; color:#d4914a; }
+  .t-padrao  { background:#0c2240; color:#6aaee8; }
+
+  .footer-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.5rem; flex-wrap: wrap; }
+  .btn-footer { font-size: 12px; color: var(--text2); cursor: pointer; border: 0.5px solid var(--border2); border-radius: 8px; padding: 6px 14px; background: none; font-family: var(--font); transition: background .15s; }
+  .btn-footer:hover { background: var(--bg3); color: var(--text); }
+
+  @media print {
+    body { background:#fff; color:#000; }
+    .tabs, .footer-row, .back-link { display: none; }
+    .section-items { display: block !important; }
+    .section-header { background: #f5f5f5; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao início</a>
+
+  <div class="page-header">
+    <h1>Checklist — Projetos complementares</h1>
+    <p>Hidrossanitário · Elétrico · Estrutural &nbsp;|&nbsp; Santa Catarina</p>
+    <div class="prog-wrap">
+      <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="prog-label" id="prog-label">0 de 0 itens concluídos</div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="hidro">Hidrossanitário</button>
+    <button class="tab" data-tab="eletrico">Elétrico</button>
+    <button class="tab" data-tab="estrutural">Estrutural</button>
+  </div>
+
+  <div id="sections"></div>
+
+  <div class="footer-row">
+    <button class="btn-footer" onclick="resetTab()">↺ Limpar aba atual</button>
+    <button class="btn-footer" onclick="resetAll()">↺ Reiniciar tudo</button>
+    <button class="btn-footer" onclick="window.print()">⎙ Imprimir</button>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  hidro:[
+    {id:"hg",label:"Conferência geral — diâmetros e inclinações",badge:"b-geral",items:[
+      {t:"Todas as tubulações com diâmetro nominal, material e inclinação indicados em planta e/ou isométrico — água fria, esgoto, pluvial e condensado de A/C",tag:"novo",tc:"t-novo"},
+    ]},
+    {id:"hiso",label:"Detalhes isométricos",badge:"b-hidro",items:[
+      {t:"Isométrico da caixa d'água com identificação das tubulações de limpeza e extravasor (ladrão), cotas e diâmetros indicados",tag:"novo",tc:"t-novo"},
+      {t:"Isométrico de cada ambiente (banheiro, cozinha, área de serviço, etc.) com ramal de água fria, esgoto e ventilação cotados",tag:"novo",tc:"t-novo"},
+      {t:"Sentido de fluxo indicado em todos os isométricos"},
+      {t:"Legenda de materiais e diâmetros presente nas pranchas isométricas"},
+    ]},
+    {id:"hab",label:"Abastecimento de água",badge:"b-hidro",items:[
+      {t:"Local de entrada de água (ramal de abastecimento) indicado em planta",tag:"novo",tc:"t-novo"},
+      {t:"Diâmetro do ramal de entrada especificado"},
+      {t:"Reservatório inferior e/ou superior dimensionado e detalhado"},
+      {t:"Alimentação predial com registro de gaveta/esfera indicado"},
+      {t:"Tubulação de água fria identificada e cotada"},
+    ]},
+    {id:"hes",label:"Esgoto sanitário",badge:"b-hidro",items:[
+      {t:"Rede de esgoto com caimentos mínimos (1% mínimo) indicados"},
+      {t:"Caixas de inspeção e gordura localizadas e detalhadas"},
+      {t:"Caixa sifonada indicada nos banheiros"},
+      {t:"Ventilação do esgoto (tubo de queda com prolongamento ou ventilação separada) indicada"},
+      {t:"Direcionamento de saída do sistema de tratamento (fossa/filtro/sumidouro) para destino final indicado",tag:"novo",tc:"t-novo"},
+    ]},
+    {id:"hff",label:"Fossa e filtro",badge:"b-hidro",items:[
+      {t:"Fossa séptica dimensionada conforme NBR 7229 (volume útil calculado)",tag:"novo",tc:"t-novo"},
+      {t:"Filtro anaeróbio dimensionado e detalhado conforme NBR 13969",tag:"novo",tc:"t-novo"},
+      {t:"Dados de teste do sumidouro atualizados — taxa de absorção, data do teste, responsável",tag:"atualizar",tc:"t-atualizar"},
+      {t:"Distâncias mínimas da fossa/filtro em relação a edificações, muros e poços observadas"},
+      {t:"Sumidouro ou vala de infiltração dimensionado"},
+    ]},
+    {id:"hpl",label:"Drenagem pluvial",badge:"b-hidro",items:[
+      {t:"Projeto de drenagem pluvial com áreas de contribuição calculadas",tag:"novo",tc:"t-novo"},
+      {t:"Calhas pluviais dimensionadas (seção, material, declividade e saída indicadas)",tag:"novo",tc:"t-novo"},
+      {t:"Coletores pluviais e caixas de captação localizados em planta"},
+      {t:"Ponto de lançamento das águas pluviais definido (galeria pública, infiltração, etc.)"},
+      {t:"Separação da rede pluvial e sanitária evidenciada"},
+    ]},
+    {id:"hac",label:"Drenagem de ar-condicionado",badge:"b-hidro",items:[
+      {t:"Projeto de drenagem de condensado de A/C com traçado e inclinação mínima (1%)",tag:"novo",tc:"t-novo"},
+      {t:"Ponto de descarte do condensado indicado (ramal pluvial ou coleta separada)"},
+      {t:"Material e diâmetro das tubulações de condensado especificados"},
+    ]},
+  ],
+  eletrico:[
+    {id:"eg",label:"Conferência geral — diâmetros e bitolas",badge:"b-geral",items:[
+      {t:"Todos os eletrodutos e conduítes com diâmetro nominal indicados em planta — circuitos de iluminação, tomadas, força e dados",tag:"novo",tc:"t-novo"},
+    ]},
+    {id:"edoc",label:"Documentação e dados gerais",badge:"b-eletro",items:[
+      {t:"ART ou RRT assinada pelo responsável técnico"},
+      {t:"Memorial descritivo com critérios de dimensionamento"},
+      {t:"Diagrama unifilar completo e atualizado"},
+      {t:"Local de entrada de energia (ramal de ligação e medidor) indicado em planta",tag:"novo",tc:"t-novo"},
+      {t:"Local de entrada de dados/internet (duto ou eletroduto) indicado em planta",tag:"novo",tc:"t-novo"},
+    ]},
+    {id:"eqd",label:"Quadro de distribuição",badge:"b-eletro",items:[
+      {t:"Quadro do tipo DIN (barramento DIN) especificado",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Alimentação 380/220 V trifásica (ou bifásica conforme disponibilidade) indicada",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Disjuntor geral dimensionado e especificado"},
+      {t:"DR (diferencial-residual) 30 mA nos circuitos de banheiro, cozinha e área externa"},
+      {t:"Identificação de todos os circuitos no diagrama e no quadro"},
+      {t:"Barramento de neutro e terra separados e identificados"},
+    ]},
+    {id:"eil",label:"Iluminação — 1,5 mm² · 10 A · 3 kA",badge:"b-eletro",items:[
+      {t:"Seção 1,5 mm² especificada",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Disjuntor 10 A / 3 kA especificado",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Pontos de iluminação distribuídos conforme leiaute de projeto"},
+      {t:"Interruptores localizados e tipo (simples, paralelo, intermediário) identificados"},
+    ]},
+    {id:"etom",label:"Tomadas gerais — 1,5 mm² · 16 A · 3 kA",badge:"b-eletro",items:[
+      {t:"Seção 1,5 mm² especificada",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Disjuntor 16 A / 3 kA especificado (tomadas gerais)",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Tomadas de cozinha/área de serviço com disjuntor 16 A / 10 kA (maior capacidade de ruptura)",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Altura e posição das tomadas conforme NBR 5410 e NBR 9050"},
+      {t:"Tomadas externas com proteção IP mínima especificada"},
+    ]},
+    {id:"echa",label:"Chuveiro — 6 mm² · 40 A · 3 kA",badge:"b-eletro",items:[
+      {t:"Circuito exclusivo por chuveiro — seção 6 mm²",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Disjuntor 40 A / 3 kA especificado",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Bitola do condutor de terra proporcional (6 mm²)"},
+    ]},
+    {id:"eac",label:"Ar-condicionado — 2,5 mm² · 16 A · 10 kA",badge:"b-eletro",items:[
+      {t:"Circuito exclusivo por equipamento — seção 2,5 mm²",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Disjuntor 16 A / 10 kA especificado (maior capacidade de ruptura)",tag:"padrão SC",tc:"t-padrao"},
+      {t:"Pontos de tomada para A/C posicionados acima das portas indicados em planta",tag:"novo",tc:"t-novo"},
+      {t:"Potência máxima do equipamento compatível com o circuito dimensionado"},
+    ]},
+    {id:"elogic",label:"Lógica e dados",badge:"b-eletro",items:[
+      {t:"Pontos de lógica (rede, internet, telefone) localizados em planta",tag:"novo",tc:"t-novo"},
+      {t:"Eletroduto(s) de dados separados dos eletrodutos elétricos"},
+      {t:"Rack ou ponto de concentração de dados indicado"},
+    ]},
+  ],
+  estrutural:[
+    {id:"rg",label:"Conferência geral — tubulações na estrutura",badge:"b-geral",items:[
+      {t:"Todas as tubulações passantes na estrutura (shafts, mangas, furos) com diâmetro e posição indicados — conferir compatibilidade com armação",tag:"novo",tc:"t-novo"},
+    ]},
+    {id:"rdoc",label:"Documentação",badge:"b-estru",items:[
+      {t:"ART ou RRT do calculista assinada"},
+      {t:"Memorial de cálculo estrutural"},
+      {t:"Especificação do fck do concreto e tipo de aço"},
+    ]},
+    {id:"rfun",label:"Fundações",badge:"b-estru",items:[
+      {t:"Tipo de fundação indicado e compatível com o laudo de sondagem"},
+      {t:"Armação e dimensões das fundações detalhadas"},
+      {t:"Vigas baldrames ou radier detalhados"},
+    ]},
+    {id:"rest",label:"Estrutura — concreto / alvenaria",badge:"b-estru",items:[
+      {t:"Pilares localizados e seções detalhadas"},
+      {t:"Vigas com seção e armação detalhadas"},
+      {t:"Lajes com espessura, armação e flecha máxima detalhadas"},
+      {t:"Vergas e contravergas de portas e janelas detalhadas (dimensões e armação)",tag:"novo",tc:"t-novo"},
+      {t:"Cinta de amarração indicada (alvenaria estrutural ou vedação)"},
+      {t:"Aberturas e shafts compatíveis com projeto arquitetônico"},
+    ]},
+    {id:"rcob",label:"Cobertura",badge:"b-estru",items:[
+      {t:"Estrutura de cobertura (madeira ou metálica) calculada e detalhada"},
+      {t:"Apoios e contraventamentos indicados"},
+      {t:"Cargas de vento consideradas conforme ABNT NBR 6118 / 7190"},
+    ]},
+    {id:"rcompat",label:"Compatibilização",badge:"b-estru",items:[
+      {t:"Projeto estrutural compatibilizado com projeto arquitetônico (cotas, aberturas, reservatórios)"},
+      {t:"Passagens de tubulações hidráulicas e elétricas verificadas (não cruzam peças estruturais)"},
+      {t:"Cargas das instalações (reservatório, equipamentos pesados) inseridas no modelo"},
+    ]},
+  ],
+};
+
+let state = {};
+try { state = JSON.parse(localStorage.getItem('ck_compl') || '{}'); } catch(e) {}
+function save() { try { localStorage.setItem('ck_compl', JSON.stringify(state)); } catch(e){} }
+
+let activeTab = 'hidro';
+
+function k(secId, t) { return secId+'::'+t; }
+
+function countTab(tab) {
+  let total=0, done=0;
+  DATA[tab].forEach(s=>s.items.forEach(it=>{total++;if(state[k(s.id,it.t)])done++;}));
+  return {total,done};
+}
+function countAll() {
+  let total=0, done=0;
+  Object.keys(DATA).forEach(tab=>{const c=countTab(tab);total+=c.total;done+=c.done;});
+  return {total,done};
+}
+function updateProgress() {
+  const {total,done}=countAll();
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=done+' de '+total+' itens concluídos ('+pct+'%)';
+}
+function render() {
+  const cont=document.getElementById('sections');
+  cont.innerHTML='';
+  DATA[activeTab].forEach(sec=>{
+    const doneSec=sec.items.filter(it=>state[k(sec.id,it.t)]).length;
+    const div=document.createElement('div');
+    div.className='section';
+    const prefix=activeTab==='hidro'?'H':activeTab==='eletrico'?'E':'R';
+    div.innerHTML=`
+      <div class="section-header" data-sec="${sec.id}">
+        <span class="sec-badge ${sec.badge}">${prefix}</span>
+        <span class="sec-title">${sec.label}</span>
+        <span class="sec-prog" id="sp-${sec.id}">${doneSec}/${sec.items.length}</span>
+        <span class="chevron open" id="cv-${sec.id}">▼</span>
+      </div>
+      <div class="section-items open" id="si-${sec.id}">
+        ${sec.items.map(it=>{
+          const checked=!!state[k(sec.id,it.t)];
+          const esc=it.t.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+          const tag=it.tag?`<span class="tag ${it.tc}">${it.tag}</span>`:'';
+          return `<div class="item${checked?' checked':''}" data-sec="${sec.id}" data-t="${esc}">
+            <div class="cb"><span class="ck">✓</span></div>
+            <span class="item-text">${it.t}${tag}</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+    cont.appendChild(div);
+  });
+  updateProgress();
+  cont.querySelectorAll('.section-header').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const id=el.dataset.sec;
+      document.getElementById('si-'+id).classList.toggle('open');
+      document.getElementById('cv-'+id).classList.toggle('open');
+    });
+  });
+  cont.querySelectorAll('.item').forEach(el=>{
+    el.addEventListener('click',()=>{
+      state[k(el.dataset.sec,el.dataset.t)]=!state[k(el.dataset.sec,el.dataset.t)];
+      save(); render();
+    });
+  });
+}
+
+document.getElementById('tabs').addEventListener('click',e=>{
+  if(!e.target.dataset.tab)return;
+  activeTab=e.target.dataset.tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===activeTab));
+  render();
+});
+function resetTab() {
+  if(!confirm('Limpar marcações da aba atual?'))return;
+  DATA[activeTab].forEach(sec=>sec.items.forEach(it=>{delete state[k(sec.id,it.t)];}));
+  save(); render();
+}
+function resetAll() {
+  if(!confirm('Reiniciar todo o checklist?'))return;
+  state={}; save(); render();
+}
+render();
+</script>
+</body>
+</html>
