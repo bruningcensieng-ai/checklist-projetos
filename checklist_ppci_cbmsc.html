@@ -1,0 +1,251 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.wrap { padding: 1rem 0; }
+.project-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.project-bar input { flex: 1; min-width: 180px; font-size: 14px; padding: 7px 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); }
+.project-bar .rt { flex: 1; min-width: 140px; }
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; }
+.stat-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.stat-val { font-size: 22px; font-weight: 500; }
+.stat-val.ok { color: #1D9E75; }
+.stat-val.nok { color: #E24B4A; }
+.stat-val.total { color: var(--color-text-primary); }
+.block { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); margin-bottom: 12px; overflow: hidden; }
+.block-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; user-select: none; }
+.block-header:hover { background: var(--color-background-secondary); }
+.block-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.block-title { font-size: 14px; font-weight: 500; flex: 1; color: var(--color-text-primary); }
+.block-badge { font-size: 12px; padding: 2px 8px; border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.block-arrow { font-size: 12px; color: var(--color-text-tertiary); transition: transform 0.2s; }
+.block-arrow.open { transform: rotate(90deg); }
+.block-items { border-top: 0.5px solid var(--color-border-tertiary); }
+.item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); cursor: pointer; transition: background 0.1s; }
+.item:last-child { border-bottom: none; }
+.item:hover { background: var(--color-background-secondary); }
+.item-cb { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--color-border-secondary); background: var(--color-background-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all 0.15s; }
+.item-cb.checked { background: #1D9E75; border-color: #1D9E75; }
+.item-cb.fail { background: #E24B4A; border-color: #E24B4A; }
+.item-cb svg { display: none; }
+.item-cb.checked svg, .item-cb.fail svg { display: block; }
+.item-text { flex: 1; font-size: 13px; color: var(--color-text-primary); line-height: 1.5; }
+.item-code { font-size: 11px; color: var(--color-text-tertiary); font-weight: 500; margin-right: 4px; }
+.item-in { font-size: 11px; color: var(--color-text-tertiary); margin-left: 4px; }
+.item-critical { font-size: 10px; padding: 1px 6px; border-radius: 4px; background: #FAECE7; color: #993C1D; font-weight: 500; margin-left: 6px; vertical-align: middle; }
+.item-fail-btn { font-size: 11px; padding: 2px 7px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; margin-left: 4px; flex-shrink: 0; }
+.item-fail-btn:hover { background: #FCEBEB; color: #A32D2D; border-color: #F09595; }
+.obs-box { padding: 0 16px 10px 44px; }
+.obs-input { width: 100%; font-size: 12px; padding: 5px 8px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); resize: none; font-family: var(--font-sans); }
+.obs-input:focus { outline: none; border-color: var(--color-border-primary); }
+.actions { display: flex; gap: 10px; margin-top: 1.5rem; flex-wrap: wrap; }
+.btn { padding: 8px 18px; font-size: 13px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); cursor: pointer; font-family: var(--font-sans); }
+.btn:hover { background: var(--color-background-secondary); }
+.btn-primary { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+.btn-primary:hover { opacity: 0.85; }
+.hidden { display: none; }
+</style>
+<div class="wrap">
+  <div class="project-bar">
+    <input id="proj-nome" placeholder="Nome / endereço do projeto" />
+    <input class="rt" id="proj-rt" placeholder="Responsável técnico" />
+  </div>
+  <div class="summary">
+    <div class="stat"><div class="stat-label">Total de itens</div><div class="stat-val total" id="s-total">0</div></div>
+    <div class="stat"><div class="stat-label">Conformes</div><div class="stat-val ok" id="s-ok">0</div></div>
+    <div class="stat"><div class="stat-label">Não conformes</div><div class="stat-val nok" id="s-nok">0</div></div>
+  </div>
+  <div id="blocks"></div>
+  <div class="actions">
+    <button class="btn" onclick="resetAll()">Limpar tudo</button>
+    <button class="btn btn-primary" onclick="gerarRelatorio()">Gerar relatório ↗</button>
+  </div>
+</div>
+<script>
+const BLOCKS = [
+  { id: 'b1', color: '#378ADD', label: 'Documentação e composição do PPCI', ref: 'IN 01', items: [
+    { code: '1.1', text: 'Folha de rosto / capa com dados completos do imóvel', critical: false },
+    { code: '1.2', text: 'Identificação do responsável técnico (nome, CREA/CAU, DRT)', critical: false },
+    { code: '1.3', text: 'ART/RRT anotada e anexada', critical: true },
+    { code: '1.4', text: 'Planta de situação presente', critical: false },
+    { code: '1.5', text: 'Planta baixa de todos os pavimentos presentes', critical: false },
+    { code: '1.6', text: 'Cortes e fachadas (quando exigidos)', critical: false },
+    { code: '1.7', text: 'Memorial descritivo completo', critical: false },
+    { code: '1.8', text: 'Planilhas de dimensionamento dos sistemas (quando aplicável)', critical: false },
+    { code: '1.9', text: 'Especificações dos materiais e equipamentos', critical: false },
+  ]},
+  { id: 'b2', color: '#E24B4A', label: 'Consistência entre documentos', ref: 'IN 01', items: [
+    { code: '2.1', text: 'Nomenclatura dos blocos na planta de situação igual ao sistema do CBMSC', critical: true },
+    { code: '2.2', text: 'Dados do selo (carimbo) completos e idênticos em todas as pranchas — nome, endereço, processo, datas, revisões', critical: true },
+    { code: '2.3', text: 'Altura da edificação igual no memorial descritivo e na planta baixa', critical: true },
+    { code: '2.4', text: 'Área total da edificação igual no memorial e nas plantas', critical: true },
+    { code: '2.5', text: 'Classificação de ocupação/uso igual em todos os documentos', critical: true },
+    { code: '2.6', text: 'Sistemas preventivos listados no memorial são os mesmos indicados nas plantas', critical: true },
+    { code: '2.7', text: 'Número de pavimentos igual em todos os documentos', critical: true },
+    { code: '2.8', text: 'Dimensões e áreas dos ambientes consistentes entre plantas e memorial', critical: false },
+  ]},
+  { id: 'b3', color: '#1D9E75', label: 'Qualidade técnica das plantas', ref: 'IN 01', items: [
+    { code: '3.1', text: 'Escala indicada em todas as pranchas (ex: 1:50, 1:100)', critical: false },
+    { code: '3.2', text: 'Escala adequada para leitura e análise dos desenhos', critical: false },
+    { code: '3.3', text: 'Norte indicado na planta de situação e implantação', critical: false },
+    { code: '3.4', text: 'Cotas de nível em todos os ambientes (piso acabado)', critical: true },
+    { code: '3.5', text: 'Cotas lineares — larguras de corredores, portas, escadas', critical: false },
+    { code: '3.6', text: 'Material de acabamento de todos os ambientes indicado nas plantas (piso, parede, teto)', critical: true },
+    { code: '3.7', text: 'Legenda completa com todos os símbolos utilizados', critical: false },
+    { code: '3.8', text: 'Numeração sequencial de pranchas correta', critical: false },
+    { code: '3.9', text: 'Revisões das pranchas atualizadas e consistentes', critical: false },
+  ]},
+  { id: 'b4', color: '#BA7517', label: 'Saídas de emergência e rotas de fuga', ref: 'IN 02', items: [
+    { code: '4.1', text: 'Largura mínima das saídas de emergência atendida', critical: true },
+    { code: '4.2', text: 'Distâncias máximas de caminhamento verificadas conforme ocupação', critical: true },
+    { code: '4.3', text: 'Sentido de abertura das portas de emergência indicado (para fora / saída)', critical: false },
+    { code: '4.4', text: 'Escadas de emergência com especificações completas (quando exigido)', critical: false },
+    { code: '4.5', text: 'Sinalização de saída de emergência indicada nas plantas', critical: false },
+    { code: '4.6', text: 'Largura mínima de corredores de rota de fuga atendida', critical: false },
+  ]},
+  { id: 'b5', color: '#534AB7', label: 'Extintores', ref: 'IN 06', items: [
+    { code: '5.1', text: 'Extintores locados em planta em todas as áreas exigidas', critical: true },
+    { code: '5.2', text: 'Tipo de extintor compatível com a classe de risco do ambiente', critical: true },
+    { code: '5.3', text: 'Distância máxima de caminhamento respeitada', critical: false },
+    { code: '5.4', text: 'Quantidade de extintores dimensionada conforme IN 06', critical: false },
+    { code: '5.5', text: 'Especificação técnica dos extintores no memorial', critical: false },
+  ]},
+  { id: 'b6', color: '#0F6E56', label: 'Hidrantes e mangotinhos', ref: 'IN 07', items: [
+    { code: '6.1', text: 'Sistema locado em planta', critical: false },
+    { code: '6.2', text: 'Tipo de sistema compatível com ocupação e área (Tipo 1, 2 ou 3)', critical: true },
+    { code: '6.3', text: 'Distância máxima de alcance das mangueiras verificada', critical: true },
+    { code: '6.4', text: 'Reservatório de incêndio (RI) dimensionado e indicado', critical: true },
+    { code: '6.5', text: 'Bomba de incêndio especificada (quando exigida)', critical: false },
+    { code: '6.6', text: 'Diâmetro das tubulações indicado nas plantas', critical: false },
+    { code: '6.7', text: 'Planilha de dimensionamento hidráulico incluída', critical: false },
+    { code: '6.8', text: 'Pressão e vazão na ponta da mangueira atendidas conforme IN 07', critical: true },
+  ]},
+  { id: 'b7', color: '#D4537E', label: 'Iluminação de emergência', ref: 'IN 03 / IN 11', items: [
+    { code: '7.1', text: 'Luminárias de emergência locadas nas rotas de fuga', critical: false },
+    { code: '7.2', text: 'Locação em escadas, corredores e saídas', critical: false },
+    { code: '7.3', text: 'Especificação técnica das luminárias (autônoma/centralizada, autonomia mínima)', critical: false },
+    { code: '7.4', text: 'Nível de iluminamento mínimo atendido (memorial ou planilha)', critical: false },
+  ]},
+  { id: 'b8', color: '#5F5E5A', label: 'Memorial descritivo', ref: 'IN 01', items: [
+    { code: '8.1', text: 'Identificação completa do imóvel (endereço, área, ocupação)', critical: false },
+    { code: '8.2', text: 'Altura da edificação informada', critical: true },
+    { code: '8.3', text: 'Classificação da edificação (grupo, divisão, carga de incêndio)', critical: false },
+    { code: '8.4', text: 'Descrição de todos os sistemas preventivos previstos', critical: false },
+    { code: '8.5', text: 'Referência às INs e normas técnicas utilizadas', critical: false },
+    { code: '8.6', text: 'Material de acabamento descrito por ambiente', critical: true },
+    { code: '8.7', text: 'Dados do responsável técnico completos', critical: false },
+  ]},
+];
+
+const state = {};
+BLOCKS.forEach(b => b.items.forEach(it => { state[it.code] = { checked: false, fail: false, obs: '' }; }));
+
+function updateSummary() {
+  let total = 0, ok = 0, nok = 0;
+  BLOCKS.forEach(b => b.items.forEach(it => {
+    total++;
+    if (state[it.code].checked) ok++;
+    if (state[it.code].fail) nok++;
+  }));
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-ok').textContent = ok;
+  document.getElementById('s-nok').textContent = nok;
+  BLOCKS.forEach(b => {
+    let bc = 0, bf = 0;
+    b.items.forEach(it => { if (state[it.code].checked) bc++; if (state[it.code].fail) bf++; });
+    const badge = document.getElementById('badge-' + b.id);
+    if (badge) badge.textContent = bc + '/' + b.items.length + (bf > 0 ? ' · ' + bf + ' ❌' : '');
+  });
+}
+
+function toggleItem(code) {
+  const s = state[code];
+  if (!s.checked && !s.fail) { s.checked = true; }
+  else if (s.checked) { s.checked = false; s.fail = true; }
+  else { s.fail = false; }
+  const cb = document.getElementById('cb-' + code);
+  cb.className = 'item-cb' + (s.checked ? ' checked' : s.fail ? ' fail' : '');
+  const obsBox = document.getElementById('obs-' + code);
+  if (obsBox) obsBox.style.display = s.fail ? 'block' : 'none';
+  updateSummary();
+}
+
+function toggleBlock(id) {
+  const content = document.getElementById('content-' + id);
+  const arrow = document.getElementById('arrow-' + id);
+  const isHidden = content.classList.contains('hidden');
+  content.classList.toggle('hidden');
+  arrow.classList.toggle('open', isHidden);
+}
+
+function resetAll() {
+  BLOCKS.forEach(b => b.items.forEach(it => { state[it.code] = { checked: false, fail: false, obs: '' }; }));
+  document.querySelectorAll('.item-cb').forEach(el => el.className = 'item-cb');
+  document.querySelectorAll('.obs-box').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.obs-input').forEach(el => el.value = '');
+  updateSummary();
+}
+
+function gerarRelatorio() {
+  const nome = document.getElementById('proj-nome').value || '(não informado)';
+  const rt = document.getElementById('proj-rt').value || '(não informado)';
+  let total = 0, ok = 0, nok = 0, naovisto = 0;
+  BLOCKS.forEach(b => b.items.forEach(it => {
+    total++;
+    if (state[it.code].checked) ok++;
+    else if (state[it.code].fail) nok++;
+    else naovisto++;
+  }));
+  let linhas = [];
+  linhas.push('PRÉ-ANÁLISE DE PPCI — ' + nome);
+  linhas.push('Data: ' + new Date().toLocaleDateString('pt-BR'));
+  linhas.push('Responsável técnico: ' + rt);
+  linhas.push('');
+  linhas.push('RESUMO');
+  linhas.push('Total: ' + total + ' | Conformes: ' + ok + ' | Não conformes: ' + nok + ' | Não verificados: ' + naovisto);
+  linhas.push('');
+  BLOCKS.forEach(b => {
+    linhas.push('--- ' + b.label.toUpperCase() + ' (' + b.ref + ') ---');
+    b.items.forEach(it => {
+      const s = state[it.code];
+      const status = s.checked ? '✅' : s.fail ? '❌' : '⬜';
+      linhas.push(status + ' ' + it.code + ' ' + it.text);
+      if (s.fail && s.obs) linhas.push('   → ' + s.obs);
+    });
+    linhas.push('');
+  });
+  sendPrompt('Gere o relatório de pré-análise do PPCI com base nestes dados:\n\n' + linhas.join('\n'));
+}
+
+const container = document.getElementById('blocks');
+BLOCKS.forEach(b => {
+  const div = document.createElement('div');
+  div.className = 'block';
+  div.innerHTML = `
+    <div class="block-header" onclick="toggleBlock('${b.id}')">
+      <div class="block-dot" style="background:${b.color}"></div>
+      <div class="block-title">${b.label}</div>
+      <div class="block-badge" id="badge-${b.id}">0/${b.items.length}</div>
+      <span class="block-arrow" id="arrow-${b.id}">▶</span>
+    </div>
+    <div class="block-items hidden" id="content-${b.id}">
+      ${b.items.map(it => `
+        <div class="item" onclick="toggleItem('${it.code}')">
+          <div class="item-cb" id="cb-${it.code}">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="item-text">
+            <span class="item-code">${it.code}</span>${it.text}${it.critical ? '<span class="item-critical">crítico</span>' : ''}<span class="item-in">${b.ref}</span>
+          </div>
+        </div>
+        <div class="obs-box" id="obs-${it.code}" style="display:none">
+          <textarea class="obs-input" rows="2" placeholder="Descreva a não conformidade..." oninput="state['${it.code}'].obs=this.value" onclick="event.stopPropagation()"></textarea>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  container.appendChild(div);
+});
+updateSummary();
+</script>
