@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklists — Projetos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:    #141412;
+    --bg2:   #1e1e1b;
+    --bg3:   #252521;
+    --text:  #e8e5de;
+    --text2: #8a887f;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --green: #1D9E75;
+    --radius: 12px;
+    --font: 'DM Sans', system-ui, sans-serif;
+  }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .wrap { max-width: 560px; width: 100%; }
+  .hdr { margin-bottom: 2.5rem; }
+  .hdr h1 { font-size: 22px; font-weight: 500; color: var(--text); }
+  .hdr p  { font-size: 13px; color: var(--text2); margin-top: 5px; line-height: 1.5; }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .cards { grid-template-columns: 1fr; } }
+
+  .card {
+    display: block;
+    text-decoration: none;
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.25rem 1rem;
+    transition: background .15s, border-color .15s;
+    cursor: pointer;
+  }
+  .card:hover { background: var(--bg3); border-color: rgba(255,255,255,0.25); }
+
+  .card-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; margin-bottom: 14px;
+  }
+  .icon-arq  { background: #1a1a3a; color: #9b97f0; }
+  .icon-comp { background: #0d3028; color: #5ecfa6; }
+
+  .card h2 { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 5px; }
+  .card p  { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  .card-arrow {
+    display: flex; justify-content: flex-end;
+    margin-top: 1rem; font-size: 13px; color: var(--text2);
+    transition: color .15s;
+  }
+  .card:hover .card-arrow { color: var(--green); }
+
+  .footer-txt { font-size: 11px; color: var(--text2); text-align: center; margin-top: 2rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <h1>Checklists de projeto</h1>
+    <p>Santa Catarina · Selecione o checklist que deseja consultar</p>
+  </div>
+
+  <div class="cards">
+    <a class="card" href="arquitetonico.html">
+      <div class="card-icon icon-arq">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+        </svg>
+      </div>
+      <h2>Projeto arquitetônico</h2>
+      <p>Pré-envio para aprovação — Prefeitura de Rodeio</p>
+      <div class="card-arrow">Abrir →</div>
+    </a>
+
+    <a class="card" href="complementares.html">
+      <div class="card-icon icon-comp">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h2>Projetos complementares</h2>
+      <p>Hidrossanitário · Elétrico · Estrutural</p>
+      <div class="card-arrow">Abrir →</div>
+    </a>
+  </div>
+
+  <div class="footer-txt">As marcações são salvas automaticamente no seu navegador</div>
+</div>
+</body>
+</html>
